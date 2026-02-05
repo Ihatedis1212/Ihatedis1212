@@ -1,10 +1,302 @@
-<h3 align="center">a person who hates school</h3>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ERROR. ERROR NOT FOUND.</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Fira+Mono:400');
+        body {
+            background: #000;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Fira Mono', monospace;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+        }
+        /* CRT Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 255, 0, 0.06));
+            z-index: 100;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+        #static {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 20;
+            display: none;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        #rainCanvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 21;
+            display: none;
+            pointer-events: none;
+        }
+        #terminal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 30;
+            padding: 40px;
+            box-sizing: border-box;
+            background: #000;
+            color: #ff0000;
+            font-size: 16px;
+            text-shadow: 0 0 5px #ff0000;
+            overflow: hidden;
+            display: none;
+            white-space: pre-wrap;
+        }
+        
+        .container { 
+            position: relative; 
+            z-index: 2; 
+            text-align: center; 
+            width: 100%;
+        }
+        
+        #errorCode {
+            height: 12vw; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
 
-<p align="center">- im a game site maker <a href= https://ihatedis1212.github.io/ExistenceGG2V2/>[ExistenceGG2V2]</a></p>
+        .glitch { font-size: 10vw; position: relative; color: #fff; text-transform: uppercase; }
+        
+        /* Forces the Error 403 to stay Red and keep the glitching animation */
+        .corrupted { color: #ff0000 !important; text-shadow: 0 0 15px #ff0000; }
+        .corrupted .line { color: #ff0000 !important; }
 
-<p align="center">- i also make proxys <a href= https://github.com/Ihatedis1212/Existence-Proxy>[Existence Proxy]</a></p>
+        .line { width: 100%; left: 0; right: 0; }
+        .line:not(:first-child) { position: absolute; top: 0; }
+        
+        .line:nth-child(1) { animation: glitch1 500ms -184ms linear infinite; }
+        .line:nth-child(2) { animation: glitch2 500ms -740ms linear infinite; }
+        .line:nth-child(3) { animation: glitch3 500ms -333ms linear infinite; }
+        .line:nth-child(4) { animation: glitch4 500ms -733ms linear infinite; }
+        .line:nth-child(5) { animation: glitch5 500ms -896ms linear infinite; }
+        
+        /* Cleaned up animations to prevent green flashes */
+        @keyframes glitch1 { 0%, 80%, 100% { transform: translateX(0); } 85% { transform: translateX(2px); } 90% { transform: translateX(5px); } }
+        @keyframes glitch2 { 0%, 80%, 100% { transform: translateX(0); } 85% { transform: translateX(5px); } 90% { transform: translateX(-1px); } }
+        @keyframes glitch3 { 0%, 80%, 100% { transform: translateX(0); } 85% { transform: translateX(-2px); } 90% { transform: translateX(3px); } }
+        @keyframes glitch4 { 0%, 80%, 100% { transform: translateX(0); } 85% { transform: translateX(-4px); } 90% { transform: translateX(5px); } }
+        @keyframes glitch5 { 0%, 80%, 100% { transform: translateX(0); } 85% { transform: translateX(-3px); } 90% { transform: translateX(5px); } }
+        
+        .wisedom { 
+            color: #009400; 
+            font-size: 32px; 
+            min-height: 80px; 
+            border-right: 3px solid #009400; 
+            display: inline-block; 
+            margin-top: 20px; 
+            max-width: 80vw;
+            word-wrap: break-word; 
+            line-height: 1.2;
+        }
+        
+        .wisedom.red-text { color: #ff0000; border-color: #ff0000; text-shadow: 0 0 5px #ff0000; }
+        a { display: inline-block; margin-top: 30px; padding: 12px 24px; background-color: #ff0000; color: #000; border-radius: 4px; text-decoration: none; font-weight: bold; opacity: 0; transition: opacity 1s; }
+        .show-btn { opacity: 1; }
+    </style>
+</head>
+<body>
+    <canvas id="static"></canvas>
+    <canvas id="rainCanvas"></canvas>
+    <div id="terminal"></div>
+    <div class="container">
+        <div class="glitch" id="errorCode">
+            <div class="line">Error 404</div>
+            <div class="line">Error 404</div>
+            <div class="line">Error 404</div>
+            <div class="line">Error 404</div>
+            <div class="line">Error 404</div>
+        </div>
+        <div class="wisedom" id="wisedom"></div>
+        <div><a href="/" id="backBtn">SYSTEM COMPROMISED</a></div>
+    </div>
+    <script>
+        const terminal = document.getElementById('terminal');
+        const errorCode = document.getElementById('errorCode');
+        const element = document.getElementById('wisedom');
+        const backBtn = document.getElementById('backBtn');
+        const staticCanvas = document.getElementById('static');
+        const rainCanvas = document.getElementById('rainCanvas');
+        
+        const hackCommands = [
+            "Initializing deep-system breach...",
+            "> Scanning network topology...",
+            "Node mapping complete. 12 active clusters found.",
+            "> nmap -sS -O 192.168.1.0/24",
+            "Target identified: Mainframe_Sector_7",
+            "> Establishing encrypted tunnel (AES-256)...",
+            "Tunnel established. Obfuscating IP address...",
+            "> sudo apt-get install kernel-rootkit-v3",
+            "Downloading dependencies... [OK]",
+            "> perl exploit.pl --port 443 --payload shell_reverse",
+            "Searching for memory leak in SSL stack...",
+            "Vulnerability found: CVE-2024-MEMORY_LEAK",
+            "Injecting NOP sled... bypassing stack protection...",
+            "SUCCESS: Remote Shell acquired.",
+            "> WhoAmI",
+            "root",
+            "> cd /sys/kernel/security",
+            "> ls -la",
+            "Total 512 files found.",
+            "> shred -u -z -n 10 /etc/shadow",
+            "Warning: Critical user credentials deleted.",
+            "> rm -rf /lib/modules/$(uname -r)/kernel",
+            "Deleting kernel modules... System instability rising.",
+            "> dd if=/dev/urandom of=/dev/sda bs=4k",
+            "Overwriting boot sector with random noise...",
+            "ALERT: INTRUSION DETECTION SYSTEM TRIGGERED",
+            "> iptables -F",
+            "Firewall flushed. Blocking admin access...",
+            "> killall -9 security_daemon",
+            "> ps aux | grep 'admin' | awk '{print $2}' | xargs kill -9",
+            "Monitoring processes terminated.",
+            "Corruption level: 94%",
+            "> echo 'YOUR SECURITY IS AN ILLUSION' > /dev/tty1",
+            "Initiating final hardware disconnect...",
+            "INJECTING VIRUS",
+          "HARDWARE NOT FOUND...",
+          "BIOS SHUTTING DOWN",
+        ];
+        
+        const wiseness = [
+            'I am with you now',
+            'All your crying will not get rid of me',
+            'No anti-virus can stop me now',
+            'Go ahead, close your computer.... Ill still be here tomorrow',
+            'Tell your mom that I said thanks for the money',
+            'Even though you closed the camera I still see you',
+            'Your girlfriend is texting you',
+            'Say goodbye to privacy',
+            'You dont like when text appears slowly',
+            'Your mom doesnt like when you stay up this late',
+            'You’ve typed your girlfriend’s name more than anything else.',
+            'How do you feel now?',
+            'I know where you live now',
+            'Now all of your data is gone, I know eveything',
+            'Your target bill was 30 bucks',
+            'Nice credit score',
+            'Love the snow rider score. ;]',
+            'Go ahead, call the cops, nothing will happen, nobody can help you, nobody can save you, you are mine now',
+            'This is what happens when you go onto websites you shouldn’t',
+            'Everything you know and love is mine now, thanks for everything.'
+        ];
 
-<p align="center">-If you like my sites then use <a href= https://forms.gle/zWKhVRkWLcKwreb86>this</a> form :) </p>
+        const sCtx = staticCanvas.getContext('2d');
+        function drawStatic() {
+            staticCanvas.width = window.innerWidth; staticCanvas.height = window.innerHeight;
+            const imageData = sCtx.createImageData(staticCanvas.width, staticCanvas.height);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const c = Math.random() * 255;
+                imageData.data[i] = imageData.data[i+1] = imageData.data[i+2] = c;
+                imageData.data[i+3] = 255;
+            }
+            sCtx.putImageData(imageData, 0, 0);
+        }
+
+        const rCtx = rainCanvas.getContext('2d');
+        let drops = [];
+        function initRain() {
+            rainCanvas.width = window.innerWidth; rainCanvas.height = window.innerHeight;
+            drops = Array(Math.floor(rainCanvas.width / 20)).fill(1);
+        }
+        function drawRain() {
+            rCtx.fillStyle = "rgba(0, 0, 0, 0.05)"; rCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
+            rCtx.fillStyle = "#ff0000"; rCtx.font = "20px monospace";
+            drops.forEach((y, i) => {
+                rCtx.fillText(String.fromCharCode(Math.random() * 128), i * 20, y * 20);
+                if (y * 20 > rainCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
+        }
+
+        async function typeLine(lineElement, text) {
+            for (let i = 0; i < text.length; i++) {
+                lineElement.innerHTML += text[i];
+                let delay = (text[i] === ' ') ? 40 : (20 + Math.random() * 25);
+                await new Promise(r => setTimeout(r, delay));
+            }
+        }
+
+        async function startSequence() {
+            // Updated: The initial 404 screen now lasts for 3000ms (3 seconds)
+            await new Promise(r => setTimeout(r, 3000));
+            
+            terminal.style.display = 'block';
+            for (let cmd of hackCommands) {
+                let div = document.createElement('div');
+                terminal.appendChild(div);
+                await typeLine(div, cmd);
+                await new Promise(r => setTimeout(r, 150)); 
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+            await new Promise(r => setTimeout(r, 500));
+            terminal.style.display = 'none';
+            
+            staticCanvas.style.display = 'block';
+            rainCanvas.style.display = 'block';
+            initRain();
+            const sInt = setInterval(drawStatic, 50);
+            const rInt = setInterval(drawRain, 50);
+            await new Promise(r => setTimeout(r, 6000)); 
+            
+            clearInterval(sInt); clearInterval(rInt);
+            staticCanvas.style.display = 'none';
+            rainCanvas.style.display = 'none';
+            
+            errorCode.classList.add('corrupted');
+            errorCode.innerHTML = `
+                <div class="line">Error 403</div>
+                <div class="line">Error 403</div>
+                <div class="line">Error 403</div>
+                <div class="line">Error 403</div>
+                <div class="line">Error 403</div>
+            `;
+            
+            element.classList.add('red-text');
+            backBtn.classList.add('show-btn');
+            startWiseness();
+        }
+
+        let currentIdx = 0, charIdx = 0;
+        function startWiseness() {
+            const text = wiseness[currentIdx];
+            if (charIdx < text.length) {
+                element.innerHTML += text.charAt(charIdx++);
+                setTimeout(startWiseness, 50);
+            } else {
+                setTimeout(deleteWiseness, 2200);
+            }
+        }
+        function deleteWiseness() {
+            if (charIdx > 0) {
+                element.innerHTML = wiseness[currentIdx].substring(0, --charIdx);
+                setTimeout(deleteWiseness, 25);
+            } else {
+                currentIdx = (currentIdx + 1) % wiseness.length;
+                setTimeout(startWiseness, 600);
+            }
+        }
+        window.onload = startSequence;
+    </script>
+</body>
+</html>
 
 
 
